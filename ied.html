@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eid by Syahla</title>
+
+<style>
+body{
+margin:0;
+background:black;
+color:white;
+font-family:sans-serif;
+overflow:hidden;
+text-align:center;
+}
+
+/* CANVAS BACKGROUND */
+canvas{
+position:fixed;
+top:0;
+left:0;
+z-index:-1;
+}
+
+/* CONTENT */
+.center{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+width:90%;
+max-width:500px;
+}
+
+/* TITLE */
+h1{
+opacity:0;
+transition:1s;
+}
+.show{
+opacity:1;
+}
+
+/* TEXT */
+#text{
+margin-top:20px;
+min-height:80px;
+}
+
+/* BUTTON */
+button{
+margin-top:20px;
+padding:10px 20px;
+border:none;
+border-radius:20px;
+background:gold;
+cursor:pointer;
+display:none;
+}
+
+/* ENVELOPE */
+.envelope{
+width:120px;
+height:80px;
+background:gold;
+margin:20px auto;
+display:none;
+cursor:pointer;
+position:relative;
+}
+.flap{
+position:absolute;
+width:100%;
+height:100%;
+background:orange;
+clip-path:polygon(0 0,100% 0,50% 50%);
+transition:0.5s;
+}
+.open .flap{
+transform:rotateX(180deg);
+}
+</style>
+</head>
+
+<body>
+
+<!-- BACKGROUND -->
+<canvas id="bg"></canvas>
+
+<!-- AUDIO (WAJIB DI LUAR SCRIPT) -->
+<audio id="bgm" loop preload="auto">
+  <source src="eid.mp3" type="audio/mpeg">
+</audio>
+
+<!-- CONTENT -->
+<div class="center">
+<h1 id="title">🌙 Selamat Hari Raya</h1>
+<div id="text"></div>
+
+<button id="btn" onclick="openTHR()">Ambil THR</button>
+
+<div class="envelope" id="env" onclick="bukaTHR()">
+<div class="flap"></div>
+</div>
+
+<div id="result"></div>
+</div>
+
+<!-- SCRIPT (SEMUA JS DI SINI) -->
+<script>
+
+/* ===== CANVAS ===== */
+const canvas = document.getElementById("bg");
+const ctx = canvas.getContext("2d");
+
+function resize(){
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+}
+resize();
+window.onresize = resize;
+
+function draw(){
+ctx.fillStyle="black";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+// bintang
+for(let i=0;i<50;i++){
+ctx.fillStyle="white";
+ctx.fillRect(Math.random()*canvas.width, Math.random()*canvas.height,2,2);
+}
+
+// bulan
+ctx.beginPath();
+ctx.arc(120,100,40,0,Math.PI*2);
+ctx.fillStyle="rgba(255,255,200,0.8)";
+ctx.fill();
+
+requestAnimationFrame(draw);
+}
+draw();
+
+/* ===== AUDIO ===== */
+let music = document.getElementById("bgm");
+
+// autoplay attempt
+window.addEventListener("load", () => {
+music.play().catch(()=>{
+console.log("Autoplay diblok, klik layar ya");
+});
+});
+
+// fallback klik
+document.body.addEventListener("click", () => {
+music.play().catch(()=>{});
+}, { once:true });
+
+/* ===== TITLE ===== */
+setTimeout(()=>{
+document.getElementById("title").classList.add("show");
+},800);
+
+/* ===== TYPING ===== */
+let messages=[
+"Minal aidin wal faIZINNNN.",
+"SAYA SYAHLA DAN KELUARGA IZIN MEMINTA MAAF PASTI ADA KESAL MAUPUN DENDAM YANG MENDALAM ...",
+"IZIN DIMAAFKAN MESKI TERULANG"
+];
+
+let i=0,j=0,cur="";
+function typing(){
+let el=document.getElementById("text");
+
+if(i<messages.length){
+if(j<messages[i].length){
+cur+=messages[i][j];
+el.innerHTML=cur;
+j++;
+setTimeout(typing,40);
+}else{
+cur+="<br><br>";
+j=0;i++;
+setTimeout(typing,500);
+}
+}else{
+document.getElementById("btn").style.display="inline-block";
+}
+}
+setTimeout(typing,2000);
+
+/* ===== THR ===== */
+function openTHR(){
+document.getElementById("env").style.display="block";
+}
+
+function bukaTHR(){
+document.getElementById("env").classList.add("open");
+
+let steps=[
+"Transfer...",
+"Rp 1.000.000💰",
+"Berhasil...",
+"...",
+"ERROR 😭",
+"AHAHAHAAHAHHAA BERHARAP APA SAMA SAMA BUTUH TEHAERRR 😌"
+];
+
+let i=0;
+let interval=setInterval(()=>{
+document.getElementById("result").innerHTML=steps[i];
+i++;
+
+if(i===steps.length){
+clearInterval(interval);
+startFire();
+}
+},800);
+}
+
+/* ===== FIREWORK ===== */
+let particles=[];
+
+function startFire(){
+setInterval(()=>{
+let x=Math.random()*canvas.width;
+let y=Math.random()*canvas.height/2;
+
+for(let i=0;i<60;i++){
+particles.push({
+x:x,
+y:y,
+dx:(Math.random()-0.5)*6,
+dy:(Math.random()-0.5)*6,
+life:80
+});
+}
+},700);
+}
+
+function drawFire(){
+particles.forEach((p,i)=>{
+p.x+=p.dx;
+p.y+=p.dy;
+p.life--;
+
+ctx.beginPath();
+ctx.arc(p.x,p.y,2,0,Math.PI*2);
+ctx.fillStyle="gold";
+ctx.fill();
+
+if(p.life<=0)particles.splice(i,1);
+});
+
+requestAnimationFrame(drawFire);
+}
+drawFire();
+
+</script>
+
+</body>
+</html>
